@@ -8,6 +8,9 @@ export const manifestContent = `{
     "activeTab", 
     "scripting"
   ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
   "background": {
     "service_worker": "background.js"
   },
@@ -32,9 +35,15 @@ const BACKEND_URL = "BACKEND_URL_PLACEHOLDER";
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === "polishText") {
     
+    // Debugging: Log the URL we are trying to hit
+    console.log("Polishing text via:", BACKEND_URL);
+
     polishTextWithServer(request.text, request.tone)
       .then(improvedText => sendResponse({ success: true, data: improvedText }))
-      .catch(error => sendResponse({ success: false, error: error.message }));
+      .catch(error => {
+        console.error("Polish Error:", error);
+        sendResponse({ success: false, error: error.message });
+      });
     
     return true; // Keep channel open
   }
@@ -51,12 +60,13 @@ async function polishTextWithServer(text, tone) {
     const data = await response.json();
     
     if (!response.ok) {
-      throw new Error(data.error || "SaaS Error");
+      throw new Error(data.error || "Server Error (" + response.status + ")");
     }
     
     return data.improvedText;
   } catch (e) {
-    throw new Error("Could not connect to Polished AI server.");
+    console.error("Network Error Details:", e);
+    throw new Error("Connection Failed. Check console for details.");
   }
 }`;
 
@@ -66,15 +76,21 @@ export const contentScriptContent = `// content.js
 let overlay = null;
 let activeSelectionRange = null;
 
+// Listen for selection
 document.addEventListener('mouseup', (e) => {
   setTimeout(() => {
     const selection = window.getSelection();
     const text = selection.toString().trim();
 
-    if (text.length > 0 && !e.target.closest('#polished-overlay') && !e.target.closest('#polished-trigger-btn')) {
+    // Ignore clicks inside our own UI
+    if (e.target.closest('#polished-overlay') || e.target.closest('#polished-trigger-btn')) {
+      return;
+    }
+
+    if (text.length > 0) {
       activeSelectionRange = selection.getRangeAt(0);
       showButton(activeSelectionRange);
-    } else if (text.length === 0) {
+    } else {
       removeButton();
     }
   }, 10);
@@ -87,8 +103,10 @@ function showButton(range) {
   btn.id = "polished-trigger-btn";
   btn.innerHTML = "✨";
   
+  // Calculate absolute position including scroll
   const top = window.scrollY + rect.top - 40;
   const left = window.scrollX + rect.left;
+  
   btn.style.top = \`\${top}px\`;
   btn.style.left = \`\${left}px\`;
   
@@ -138,7 +156,7 @@ function showOverlay(originalText) {
     const resultDiv = document.getElementById('polished-result');
     const replaceBtn = document.getElementById('polished-replace');
     
-    resultDiv.innerText = "Connecting to server...";
+    resultDiv.innerText = "Connecting...";
     resultDiv.classList.add('loading');
     resultDiv.classList.remove('error');
 
@@ -146,12 +164,20 @@ function showOverlay(originalText) {
       { action: "polishText", text: originalText, tone: tone },
       (response) => {
         resultDiv.classList.remove('loading');
+        
+        // Handle runtime errors (like connection issues)
+        if (chrome.runtime.lastError) {
+             resultDiv.innerText = "Err: " + chrome.runtime.lastError.message;
+             resultDiv.classList.add('error');
+             return;
+        }
+
         if (response && response.success) {
           resultDiv.innerText = response.data;
           replaceBtn.disabled = false;
           replaceBtn.onclick = () => replaceText(response.data);
         } else {
-          resultDiv.innerText = response?.error || "Error";
+          resultDiv.innerText = response?.error || "Unknown Error";
           resultDiv.classList.add('error');
         }
       }
@@ -166,7 +192,7 @@ function replaceText(newText) {
         activeSelectionRange.insertNode(document.createTextNode(newText));
         overlay.remove();
         window.getSelection().removeAllRanges();
-    } catch(e) { alert("Paste manually."); }
+    } catch(e) { alert("Could not replace text automatically. Please copy/paste."); }
   }
 }`;
 
