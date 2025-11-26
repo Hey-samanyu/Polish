@@ -1,25 +1,16 @@
 import { GoogleGenAI } from "@google/genai";
 import { ImprovementTone } from "../types";
 
-// Safely access process.env to prevent crashes in browsers/environments where it's undefined
-const getApiKey = () => {
-  try {
-    if (typeof process !== "undefined" && process.env) {
-      return process.env.API_KEY;
-    }
-  } catch (e) {
-    // Ignore error
-  }
-  return undefined;
-};
-
-const apiKey = getApiKey();
+// In production/Vercel, Vite will replace this with the string value of your API Key.
+// Ensure you have set 'API_KEY' in your Vercel Project Settings > Environment Variables.
+const apiKey = process.env.API_KEY;
 
 if (!apiKey) {
-  console.warn("API_KEY is not defined. The demo functionality will use a dummy key and may fail if not configured in Vercel Environment Variables.");
+  console.warn("API_KEY is missing. Please set it in your Vercel Environment Variables.");
 }
 
-const ai = new GoogleGenAI({ apiKey: apiKey || 'DUMMY_KEY_FOR_BUILD' });
+// Fallback to a dummy key to prevent crash if key is missing, but API calls will fail.
+const ai = new GoogleGenAI({ apiKey: apiKey || 'MISSING_API_KEY' });
 
 export const improveText = async (text: string, tone: ImprovementTone): Promise<string> => {
   if (!text.trim()) return "";
@@ -52,6 +43,6 @@ export const improveText = async (text: string, tone: ImprovementTone): Promise<
     return response.text || text;
   } catch (error) {
     console.error("Gemini API Error:", error);
-    throw new Error("Connection failed. Please try again.");
+    throw new Error("Connection failed. Please check your API Key and try again.");
   }
 };
