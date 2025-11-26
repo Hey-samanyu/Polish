@@ -4,6 +4,7 @@ import ExtensionOverlay from './components/OutputArea';
 import { SelectionState } from './types';
 import { SparklesIcon, CodeIcon } from './components/Icons';
 import { manifestContent, backgroundContent, contentScriptContent, stylesContent } from './extension/fileContents';
+import JSZip from 'jszip';
 
 const App: React.FC = () => {
   const [activeView, setActiveView] = useState<'landing' | 'demo' | 'download'>('landing');
@@ -50,14 +51,24 @@ const App: React.FC = () => {
   // Inject real URL into the template
   const finalizedBackgroundJs = backgroundContent.replace("BACKEND_URL_PLACEHOLDER", backendUrl);
 
-  const downloadFile = (filename: string, content: string) => {
-    const element = document.createElement('a');
-    const file = new Blob([content], {type: 'text/plain'});
-    element.href = URL.createObjectURL(file);
-    element.download = filename;
-    document.body.appendChild(element);
-    element.click();
-    document.body.removeChild(element);
+  const handleDownloadZip = async () => {
+    const zip = new JSZip();
+    const folder = zip.folder("polished-extension");
+    
+    if (folder) {
+        folder.file("manifest.json", manifestContent);
+        folder.file("background.js", finalizedBackgroundJs);
+        folder.file("content.js", contentScriptContent);
+        folder.file("styles.css", stylesContent);
+        
+        const content = await zip.generateAsync({ type: "blob" });
+        const element = document.createElement('a');
+        element.href = URL.createObjectURL(content);
+        element.download = "polished-extension.zip";
+        document.body.appendChild(element);
+        element.click();
+        document.body.removeChild(element);
+    }
   };
 
   return (
@@ -130,30 +141,49 @@ const App: React.FC = () => {
         {/* DOWNLOAD */}
         {activeView === 'download' && (
           <div className="flex-1 overflow-y-auto p-4 md:p-12 bg-slate-900">
-            <div className="max-w-4xl mx-auto">
-              <div className="mb-10">
-                <h2 className="text-3xl font-bold text-white mb-4">Download Extension</h2>
-                <p className="text-slate-400 mb-6">
-                    This extension is pre-configured to connect to 
-                    <code className="mx-2 bg-slate-800 px-2 py-1 rounded text-emerald-400">{backendUrl}</code>
+            <div className="max-w-3xl mx-auto flex flex-col items-center">
+              <div className="mb-12 text-center">
+                <h2 className="text-4xl font-bold text-white mb-6">Install Your Extension</h2>
+                <p className="text-slate-400 max-w-lg mx-auto mb-8">
+                    We've pre-configured the extension to connect to your secure backend at:
+                    <br/>
+                    <code className="bg-slate-800 px-2 py-1 rounded text-emerald-400 text-sm mt-2 inline-block">{backendUrl}</code>
                 </p>
-                
-                <div className="bg-slate-800/50 p-6 rounded-xl border border-slate-700 mb-8">
-                   <h3 className="text-white font-bold mb-4">Instructions</h3>
-                   <ol className="list-decimal list-inside text-slate-300 space-y-2">
-                       <li>Create a folder named <code>polished-extension</code> on your computer.</li>
-                       <li>Download the 4 files below into that folder.</li>
-                       <li>Go to <code>chrome://extensions</code> in Chrome.</li>
-                       <li>Enable "Developer Mode" and click "Load Unpacked".</li>
-                   </ol>
-                </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <DownloadCard filename="manifest.json" content={manifestContent} onDownload={() => downloadFile('manifest.json', manifestContent)} />
-                    <DownloadCard filename="background.js" content={finalizedBackgroundJs} onDownload={() => downloadFile('background.js', finalizedBackgroundJs)} />
-                    <DownloadCard filename="content.js" content={contentScriptContent} onDownload={() => downloadFile('content.js', contentScriptContent)} />
-                    <DownloadCard filename="styles.css" content={stylesContent} onDownload={() => downloadFile('styles.css', stylesContent)} />
-                </div>
+                <button 
+                  onClick={handleDownloadZip}
+                  className="group relative inline-flex items-center justify-center gap-3 px-8 py-4 bg-emerald-500 hover:bg-emerald-400 text-slate-900 font-bold text-lg rounded-xl shadow-xl shadow-emerald-500/20 transition-all hover:-translate-y-1 hover:shadow-emerald-500/30"
+                >
+                  <CodeIcon className="w-6 h-6" />
+                  <span>Download Extension (.zip)</span>
+                </button>
+              </div>
+                
+              <div className="w-full bg-slate-800/50 p-8 rounded-2xl border border-slate-700">
+                 <h3 className="text-xl text-white font-bold mb-6 flex items-center gap-2">
+                    <span className="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center text-sm border border-slate-600">i</span>
+                    Installation Steps
+                 </h3>
+                 <ol className="relative border-l border-slate-700 ml-3 space-y-8">
+                     <li className="ml-6">
+                        <span className="absolute -left-1.5 w-3 h-3 bg-emerald-500 rounded-full mt-1.5 ring-4 ring-slate-900"></span>
+                        <h4 className="font-bold text-white text-lg mb-1">Unzip the file</h4>
+                        <p className="text-slate-400">Extract the downloaded zip folder to a location you can access easily.</p>
+                     </li>
+                     <li className="ml-6">
+                        <span className="absolute -left-1.5 w-3 h-3 bg-slate-600 rounded-full mt-1.5 ring-4 ring-slate-900"></span>
+                        <h4 className="font-bold text-white text-lg mb-1">Open Extensions Menu</h4>
+                        <p className="text-slate-400">
+                            In Chrome, type <code className="bg-slate-900 px-1 py-0.5 rounded text-slate-300">chrome://extensions</code> in the address bar.
+                        </p>
+                     </li>
+                     <li className="ml-6">
+                        <span className="absolute -left-1.5 w-3 h-3 bg-slate-600 rounded-full mt-1.5 ring-4 ring-slate-900"></span>
+                        <h4 className="font-bold text-white text-lg mb-1">Load Unpacked</h4>
+                        <p className="text-slate-400 mb-2">Enable <strong>Developer mode</strong> in the top right, then click the <strong>Load unpacked</strong> button.</p>
+                        <p className="text-slate-400">Select the folder you just unzipped.</p>
+                     </li>
+                 </ol>
               </div>
             </div>
           </div>
@@ -166,18 +196,6 @@ const App: React.FC = () => {
 
 const NavButton: React.FC<{ active: boolean; children: React.ReactNode; onClick: () => void }> = ({ active, children, onClick }) => (
     <button onClick={onClick} className={`px-5 py-2 rounded-full text-sm font-medium transition-all ${active ? 'bg-slate-700 text-white' : 'text-slate-400 hover:text-white'}`}>{children}</button>
-);
-
-const DownloadCard: React.FC<{ filename: string; content: string; onDownload: () => void }> = ({ filename, content, onDownload }) => (
-  <div className="bg-[#0d1117] border border-slate-700 rounded-xl p-4 flex flex-col justify-between h-40">
-      <div>
-          <div className="text-emerald-400 font-mono font-bold mb-2">{filename}</div>
-          <div className="text-xs text-slate-500 truncate">{content.substring(0, 100)}...</div>
-      </div>
-      <button onClick={onDownload} className="mt-4 w-full py-2 bg-slate-800 hover:bg-slate-700 text-white text-sm font-medium rounded-lg border border-slate-700 transition-colors flex items-center justify-center gap-2">
-         Download File
-      </button>
-  </div>
 );
 
 export default App;
