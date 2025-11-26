@@ -2,12 +2,12 @@ import React, { useState } from 'react';
 import EmailComposer from './components/InputArea';
 import ExtensionOverlay from './components/OutputArea';
 import { SelectionState } from './types';
-import { SparklesIcon, LayoutDashboardIcon, CodeIcon, BarChartIcon, CreditCardIcon, ServerIcon, CheckIcon } from './components/Icons';
-import { manifestContent, backgroundContent, contentScriptContent, stylesContent, serverContent } from './extension/fileContents';
+import { SparklesIcon, CodeIcon, ArrowRightIcon } from './components/Icons';
+import { manifestContent, backgroundContent, contentScriptContent, stylesContent } from './extension/fileContents';
 
 const App: React.FC = () => {
-  // Tabs: 'landing' | 'demo' | 'dashboard' | 'code'
-  const [activeView, setActiveView] = useState<'landing' | 'demo' | 'dashboard' | 'code'>('landing');
+  // Tabs: 'landing' | 'demo' | 'code'
+  const [activeView, setActiveView] = useState<'landing' | 'demo' | 'code'>('landing');
 
   // --- Demo State ---
   const [emailContent, setEmailContent] = useState(
@@ -60,16 +60,11 @@ const App: React.FC = () => {
                 <span>Polished<span className="text-white">AI</span></span>
             </div>
             
-            <nav className="hidden md:flex items-center gap-1 bg-slate-800/50 p-1 rounded-full border border-slate-700/50">
-                <NavButton active={activeView === 'landing'} onClick={() => setActiveView('landing')}>Product</NavButton>
-                <NavButton active={activeView === 'demo'} onClick={() => setActiveView('demo')}>Live Demo</NavButton>
-                <NavButton active={activeView === 'dashboard'} onClick={() => setActiveView('dashboard')}>Dashboard</NavButton>
-                <NavButton active={activeView === 'code'} onClick={() => setActiveView('code')}>SaaS Code</NavButton>
+            <nav className="flex items-center gap-1 bg-slate-800/50 p-1 rounded-full border border-slate-700/50">
+                <NavButton active={activeView === 'landing'} onClick={() => setActiveView('landing')}>Home</NavButton>
+                <NavButton active={activeView === 'demo'} onClick={() => setActiveView('demo')}>Demo</NavButton>
+                <NavButton active={activeView === 'code'} onClick={() => setActiveView('code')}>Get Extension</NavButton>
             </nav>
-
-            <button onClick={() => setActiveView('dashboard')} className="md:hidden p-2 bg-slate-800 rounded-lg">
-                <LayoutDashboardIcon className="w-5 h-5 text-slate-400" />
-            </button>
          </div>
       </header>
 
@@ -79,33 +74,45 @@ const App: React.FC = () => {
         {/* VIEW: LANDING PAGE */}
         {activeView === 'landing' && (
             <div className="max-w-6xl mx-auto px-6 py-20 flex flex-col items-center text-center">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold uppercase tracking-wider mb-8 animate-fade-in">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold uppercase tracking-wider mb-8">
                     <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                    Now with Gemini 2.5 Flash
+                    Gemini 2.5 Powered
                 </div>
                 <h1 className="text-5xl md:text-7xl font-bold tracking-tight mb-8 bg-gradient-to-b from-white to-slate-400 bg-clip-text text-transparent">
-                    Make every email <br/> sound <span className="text-emerald-400">professional.</span>
+                    Fix your grammar <br/> <span className="text-emerald-400">anywhere on the web.</span>
                 </h1>
                 <p className="text-lg md:text-xl text-slate-400 max-w-2xl mb-12 leading-relaxed">
-                    Polished AI is a Chrome Extension that fixes punctuation, grammar, and tone instantly inside Gmail, Outlook, and LinkedIn.
+                    Polished AI is a lightweight Chrome Extension. It works on Gmail, LinkedIn, Discord, and more. 
+                    No subscription required—just use your own API Key.
                 </p>
                 <div className="flex flex-col md:flex-row gap-4 w-full md:w-auto">
                     <button onClick={() => setActiveView('demo')} className="px-8 py-4 bg-emerald-500 hover:bg-emerald-400 text-slate-900 font-bold rounded-xl transition-all hover:scale-105 shadow-xl shadow-emerald-900/20">
-                        Try Interactive Demo
+                        Try Demo
                     </button>
-                    <button onClick={() => setActiveView('code')} className="px-8 py-4 bg-slate-800 hover:bg-slate-700 text-white font-semibold rounded-xl border border-slate-700 transition-all">
-                        View SaaS Architecture
+                    <button onClick={() => setActiveView('code')} className="flex items-center justify-center gap-2 px-8 py-4 bg-slate-800 hover:bg-slate-700 text-white font-semibold rounded-xl border border-slate-700 transition-all">
+                        <CodeIcon className="w-4 h-4" />
+                        Install Extension
                     </button>
                 </div>
 
-                {/* Social Proof */}
-                <div className="mt-24 pt-12 border-t border-slate-800 w-full">
-                    <p className="text-slate-500 text-sm font-medium mb-8">TRUSTED BY TEAMS AT</p>
-                    <div className="flex flex-wrap justify-center gap-8 md:gap-16 opacity-50 grayscale">
-                       <span className="text-2xl font-bold text-slate-300">ACME Corp</span>
-                       <span className="text-2xl font-bold text-slate-300">Globex</span>
-                       <span className="text-2xl font-bold text-slate-300">Soylent</span>
-                       <span className="text-2xl font-bold text-slate-300">Umbrella</span>
+                <div className="mt-20 w-full max-w-4xl bg-slate-800/50 rounded-xl border border-slate-700 p-8 text-left">
+                    <h3 className="text-lg font-bold text-white mb-4">How it works</h3>
+                    <div className="grid md:grid-cols-3 gap-8">
+                        <FeatureStep 
+                           step="1" 
+                           title="Select Text" 
+                           desc="Highlight any text input on any website." 
+                        />
+                        <FeatureStep 
+                           step="2" 
+                           title="Click Polish" 
+                           desc="A magic button appears. Click it to analyze." 
+                        />
+                        <FeatureStep 
+                           step="3" 
+                           title="Replace" 
+                           desc="One click to swap your messy draft for polished perfection." 
+                        />
                     </div>
                 </div>
             </div>
@@ -115,8 +122,8 @@ const App: React.FC = () => {
         {activeView === 'demo' && (
           <div className="flex flex-col items-center justify-center p-4 md:p-12 min-h-full">
              <div className="mb-8 text-center">
-                <h2 className="text-3xl font-bold text-white mb-2">Experience the Extension</h2>
-                <p className="text-slate-400">Select text below to see how the floating polished button works.</p>
+                <h2 className="text-3xl font-bold text-white mb-2">Try the Simulator</h2>
+                <p className="text-slate-400">This simulates how the extension behaves inside Gmail.</p>
              </div>
              <div className="w-full max-w-4xl h-[600px] relative">
               <EmailComposer 
@@ -150,95 +157,47 @@ const App: React.FC = () => {
           </div>
         )}
 
-        {/* VIEW: DASHBOARD */}
-        {activeView === 'dashboard' && (
-            <div className="max-w-5xl mx-auto p-6 md:p-12">
-                <div className="flex items-center justify-between mb-8">
-                    <div>
-                        <h2 className="text-3xl font-bold text-white">Dashboard</h2>
-                        <p className="text-slate-400">Manage your subscription and usage.</p>
-                    </div>
-                    <div className="px-4 py-2 bg-emerald-500/10 border border-emerald-500/20 rounded-lg text-emerald-400 text-sm font-medium">
-                        Plan: Pro (Active)
-                    </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-                    <StatCard 
-                        title="Credits Remaining" 
-                        value="850" 
-                        total="/ 1000" 
-                        icon={<SparklesIcon className="w-5 h-5 text-emerald-400"/>} 
-                    />
-                    <StatCard 
-                        title="Words Polished" 
-                        value="12.5k" 
-                        total="All time" 
-                        icon={<BarChartIcon className="w-5 h-5 text-blue-400"/>} 
-                    />
-                     <StatCard 
-                        title="Next Invoice" 
-                        value="$9.00" 
-                        total="Due Nov 1st" 
-                        icon={<CreditCardIcon className="w-5 h-5 text-purple-400"/>} 
-                    />
-                </div>
-
-                <div className="bg-slate-800/50 rounded-2xl border border-slate-700 p-8">
-                    <div className="flex items-center gap-3 mb-6">
-                         <div className="p-2 bg-slate-700 rounded-lg"><CodeIcon className="w-5 h-5 text-white"/></div>
-                         <h3 className="text-xl font-bold text-white">API Integration</h3>
-                    </div>
-                    <p className="text-slate-400 mb-6">
-                        Use this token in your browser extension to authenticate with our servers.
-                    </p>
-                    <div className="flex gap-4">
-                        <code className="flex-1 bg-black/30 p-4 rounded-lg border border-slate-700 font-mono text-emerald-400 text-sm overflow-hidden">
-                            sk_live_51Mz92...xY72z
-                        </code>
-                        <button className="px-6 py-2 bg-slate-700 hover:bg-slate-600 text-white font-medium rounded-lg transition-colors">
-                            Copy Token
-                        </button>
-                    </div>
-                </div>
-            </div>
-        )}
-
         {/* VIEW: CODE */}
         {activeView === 'code' && (
           <div className="flex-1 overflow-y-auto p-4 md:p-12 bg-slate-900">
-            <div className="max-w-5xl mx-auto">
-              <div className="mb-10 text-center md:text-left">
-                <h2 className="text-3xl font-bold text-white mb-3">SaaS Architecture Code</h2>
-                <p className="text-slate-400 max-w-2xl">
-                    To scale this to thousands of users, you cannot put the Gemini Key in the extension. 
-                    Instead, follow this Client-Server pattern.
+            <div className="max-w-4xl mx-auto">
+              <div className="mb-10">
+                <h2 className="text-3xl font-bold text-white mb-4">Install Locally</h2>
+                <p className="text-slate-400 mb-6">
+                    Follow these steps to load Polished AI into your Chrome browser.
                 </p>
+                
+                <ol className="space-y-4 text-slate-300 bg-slate-800/50 p-6 rounded-xl border border-slate-700 mb-10">
+                  <li className="flex gap-3">
+                    <span className="bg-emerald-500/20 text-emerald-400 w-6 h-6 flex items-center justify-center rounded-full text-sm font-bold flex-shrink-0">1</span>
+                    <span>Create a new folder on your computer named <code className="bg-slate-900 px-1 py-0.5 rounded text-emerald-400">polished-extension</code>.</span>
+                  </li>
+                  <li className="flex gap-3">
+                    <span className="bg-emerald-500/20 text-emerald-400 w-6 h-6 flex items-center justify-center rounded-full text-sm font-bold flex-shrink-0">2</span>
+                    <span>Create the 4 files below inside that folder with the exact names.</span>
+                  </li>
+                  <li className="flex gap-3">
+                    <span className="bg-emerald-500/20 text-emerald-400 w-6 h-6 flex items-center justify-center rounded-full text-sm font-bold flex-shrink-0">3</span>
+                    <span>
+                        In <code className="bg-slate-900 px-1 py-0.5 rounded text-white">background.js</code>, replace 
+                        <span className="text-yellow-400 mx-1">PASTE_YOUR_GEMINI_API_KEY_HERE</span> 
+                        with your actual API key.
+                        <br/>
+                        <a href="https://aistudio.google.com/app/apikey" target="_blank" className="text-emerald-400 underline text-sm hover:text-emerald-300">Get a free key here →</a>
+                    </span>
+                  </li>
+                  <li className="flex gap-3">
+                    <span className="bg-emerald-500/20 text-emerald-400 w-6 h-6 flex items-center justify-center rounded-full text-sm font-bold flex-shrink-0">4</span>
+                    <span>Open Chrome, go to <code className="bg-slate-900 px-1 py-0.5 rounded text-white">chrome://extensions</code>, enable "Developer Mode" (top right), and click "Load Unpacked". Select your folder.</span>
+                  </li>
+                </ol>
               </div>
 
-              <div className="grid md:grid-cols-2 gap-8 pb-12">
-                  {/* Column 1: Client Side */}
-                  <div className="space-y-6">
-                      <div className="flex items-center gap-2 text-emerald-400 font-bold border-b border-emerald-500/30 pb-2 mb-4">
-                          <LayoutDashboardIcon className="w-5 h-5" />
-                          <span>Client Side (The Extension)</span>
-                      </div>
-                      <CodeBlock filename="manifest.json" content={manifestContent} />
-                      <CodeBlock filename="background.js" content={backgroundContent} description="Now sends requests to YOUR server, not Google."/>
-                      <CodeBlock filename="content.js" content={contentScriptContent} />
-                  </div>
-
-                   {/* Column 2: Server Side */}
-                   <div className="space-y-6">
-                      <div className="flex items-center gap-2 text-purple-400 font-bold border-b border-purple-500/30 pb-2 mb-4">
-                          <ServerIcon className="w-5 h-5" />
-                          <span>Server Side (Your Backend)</span>
-                      </div>
-                      <div className="bg-purple-900/10 border border-purple-500/20 p-4 rounded-xl text-sm text-purple-200 mb-4">
-                          This code runs on your cloud provider (AWS, Vercel, etc). It holds the secrets.
-                      </div>
-                      <CodeBlock filename="server.js" content={serverContent} description="Node.js Express server that securely calls Gemini."/>
-                  </div>
+              <div className="space-y-8">
+                  <CodeBlock filename="manifest.json" content={manifestContent} />
+                  <CodeBlock filename="background.js" content={backgroundContent} description="IMPORTANT: Paste your API Key inside this file." highlight/>
+                  <CodeBlock filename="content.js" content={contentScriptContent} />
+                  <CodeBlock filename="styles.css" content={stylesContent} />
               </div>
             </div>
           </div>
@@ -264,23 +223,20 @@ const NavButton: React.FC<{ active: boolean; children: React.ReactNode; onClick:
     </button>
 );
 
-const StatCard: React.FC<{ title: string; value: string; total: string; icon: React.ReactNode }> = ({ title, value, total, icon }) => (
-    <div className="bg-slate-800/50 p-6 rounded-2xl border border-slate-700 hover:border-slate-600 transition-colors">
-        <div className="flex items-start justify-between mb-4">
-            <div className="p-2 bg-slate-900 rounded-lg border border-slate-700">
-                {icon}
-            </div>
-            <span className="text-slate-500 text-xs font-semibold uppercase tracking-wider">Month to Date</span>
+const FeatureStep: React.FC<{ step: string; title: string; desc: string }> = ({ step, title, desc }) => (
+    <div className="flex gap-4">
+        <div className="text-4xl font-bold text-slate-700">{step}</div>
+        <div>
+            <h4 className="text-white font-bold mb-1">{title}</h4>
+            <p className="text-slate-400 text-sm leading-relaxed">{desc}</p>
         </div>
-        <div className="text-3xl font-bold text-white mb-1">{value}</div>
-        <div className="text-slate-400 text-sm font-medium">{total}</div>
     </div>
 );
 
-const CodeBlock: React.FC<{ filename: string; content: string; description?: string }> = ({ filename, content, description }) => (
-  <div className="rounded-xl overflow-hidden border border-slate-700 bg-[#0d1117] shadow-lg flex flex-col">
+const CodeBlock: React.FC<{ filename: string; content: string; description?: string; highlight?: boolean }> = ({ filename, content, description, highlight }) => (
+  <div className={`rounded-xl overflow-hidden border bg-[#0d1117] shadow-lg flex flex-col ${highlight ? 'border-yellow-500/50 shadow-yellow-900/10' : 'border-slate-700'}`}>
     <div className="flex items-center justify-between px-4 py-3 bg-slate-800 border-b border-slate-700">
-      <span className="text-sm font-mono text-emerald-400 font-semibold">{filename}</span>
+      <span className={`text-sm font-mono font-semibold ${highlight ? 'text-yellow-400' : 'text-emerald-400'}`}>{filename}</span>
       <button 
         onClick={() => navigator.clipboard.writeText(content)}
         className="text-xs text-slate-400 hover:text-white flex items-center gap-1 hover:bg-slate-700 px-2 py-1 rounded transition-colors"
@@ -288,7 +244,7 @@ const CodeBlock: React.FC<{ filename: string; content: string; description?: str
         Copy
       </button>
     </div>
-    {description && <div className="px-4 py-2 bg-slate-800/50 text-xs text-slate-400 border-b border-slate-700/50 italic">{description}</div>}
+    {description && <div className={`px-4 py-2 text-xs border-b border-slate-700/50 font-medium ${highlight ? 'bg-yellow-500/10 text-yellow-200' : 'bg-slate-800/50 text-slate-400'}`}>{description}</div>}
     <div className="p-4 overflow-x-auto relative group">
       <pre className="text-xs font-mono text-slate-300 whitespace-pre font-light leading-relaxed">
         {content}
