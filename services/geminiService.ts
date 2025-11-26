@@ -1,10 +1,22 @@
 import { GoogleGenAI } from "@google/genai";
 import { ImprovementTone } from "../types";
 
-const apiKey = process.env.API_KEY;
+// Safely access process.env to prevent crashes in browsers/environments where it's undefined
+const getApiKey = () => {
+  try {
+    if (typeof process !== "undefined" && process.env) {
+      return process.env.API_KEY;
+    }
+  } catch (e) {
+    // Ignore error
+  }
+  return undefined;
+};
+
+const apiKey = getApiKey();
 
 if (!apiKey) {
-  console.error("API_KEY is not defined in the environment variables.");
+  console.warn("API_KEY is not defined. The demo functionality will use a dummy key and may fail if not configured in Vercel Environment Variables.");
 }
 
 const ai = new GoogleGenAI({ apiKey: apiKey || 'DUMMY_KEY_FOR_BUILD' });
