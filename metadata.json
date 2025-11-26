@@ -1,5 +1,5 @@
 {
-  "name": "Polished AI - Chrome Extension",
-  "description": "Interactive demo and source code generator for the Polished AI Chrome Extension.",
+  "name": "Polished AI - SaaS Platform",
+  "description": "SaaS Platform where the extension connects to a secure Vercel backend.",
   "requestFramePermissions": []
 }
